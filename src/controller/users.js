@@ -25,6 +25,7 @@ class ControllerUser {
     Create(req, res) {
     try { 
         console.log(req.body.nome)
+        const nome = req.body.nome
         ServiceUser.Create(nome)
         res.status(201).send()
         
