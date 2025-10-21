@@ -1,0 +1,19 @@
+{
+  "dependencies": {
+    "cross-env": "^10.1.0",
+    "express": "^5.1.0",
+    "jest": "^30.2.0"
+  },
+  "name": "aula_crud_js",
+  "description": "aula de crud em js",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch ./src/index.js",
+    "test": "cross-env TEST=true node --experimental-vm-modules node_modules/jest/bin/jest.js"
+  },
+  "author": "Khalil Monteiro",
+  "license": "ISC"
+}
+ 
