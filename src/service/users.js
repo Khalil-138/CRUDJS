@@ -1,4 +1,7 @@
 import User from "../model/users.js"
+import jwt from 'jsonwebtoken'
+
+const JWT_SEGREGO = "S3GR3D0"
 
 
 class ServiceUser {
@@ -53,6 +56,22 @@ class ServiceUser {
 
         await user.destroy()
     }
-}
 
+    async Login(email, senha) {
+        if (!email || !senha) {
+            throw new Error("Email ou senha inválidos.")
+        }
+
+        const user = await User.findOne({ where: { email } })
+
+        if (!user || user.senha !== senha) {
+            throw new Error("Email ou senha inválidos.")
+        }
+
+        return jwt.sign({ id: user.id, nome: user.nome}, JWT_SEGREGO,
+            { expiresIn: 60 * 60 }
+         )
+    }
+
+}
 export default new ServiceUser()
