@@ -1,14 +1,16 @@
 import User from "../model/users.js"
 import jwt from 'jsonwebtoken'
+import bcrypt from 'bcrypt'
 
 const JWT_SEGREGO = "S3GR3D0"
+const SALT = 10 //12
 
 
 class ServiceUser {
 
     FindAll() {
 
-        return User.FindAll()
+        // return User.FindAll()
     }
     async FindOne(id) {
         //verificar se o index é valido 0, 1 ou 2 na posição do array
@@ -26,18 +28,31 @@ class ServiceUser {
 
         return user
     }
-    async Create(nome, email, senha, ativo) {
+    async Create(nome, email, senha, ativo, permissao) {
         if (!nome || !email || !senha) {
             throw new Error("favor preencher todos os campos")
+            //const senhaCriptografada = "teste"
 
         }
+        const senhaCriptografada = await bcrypt.hash(String(senha), SALT)
+
         await User.create({
-            nome, email, senha, ativo
+            nome,
+            email,
+            senha: senhaCriptografada,
+            ativo,
+            permissao
         })
     }
-    Update(id, nome) {
+    async Update(id, nome, senha, email, ativo) {
+        const ouldUser = User.findByPk(id)
+
+        ouldUser.senha = senha
+            ? await bcrypt.hash(String(senha), SALT)
+            : ouldUser.senha
+
         //verificar se o index é valido 0, 1 ou 2 na posição do array
-        User.Update(id, nome)
+        //oldUser.nome = nome || oldUser.nome
         //alterar o atributo do user
         // await user.save
     }
@@ -64,13 +79,16 @@ class ServiceUser {
 
         const user = await User.findOne({ where: { email } })
 
-        if (!user || user.senha !== senha) {
+        if (
+            !user
+            || !(await bcrypt.compare(String(senha), user.senha))
+        ) {
             throw new Error("Email ou senha inválidos.")
         }
 
-        return jwt.sign({ id: user.id, nome: user.nome}, JWT_SEGREGO,
+        return jwt.sign({ id: user.id, nome: user.nome, permissao: user.permissao }, JWT_SEGREGO,
             { expiresIn: 60 * 60 }
-         )
+        )
     }
 
 }
